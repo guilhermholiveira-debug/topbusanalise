@@ -1,415 +1,557 @@
-import { useState } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react';
+import { FileText, X, ChevronDown } from 'lucide-react';
 
 export default function FormularioSinistro() {
-  const [formData, setFormData] = useState({
-    empresa: '',  // OBRIGATÓRIO
-    dataHora: '',
-    local: '',
-    onibus: '',
-    motorista: '',
-    chapa: '',
-    terceiro: { nome: '', placa: '', veiculo: '', telefone: '' },
-    testemunhas: [{ nome: '', telefone: '' }],
-    culpabilidade: '',
-    descricao: ''
-  })
+  const [unidade, setUnidade] = useState('');
+  const [dropdownAberto, setDropdownAberto] = useState(false);
+  const [data, setData] = useState('');
+  const [local, setLocal] = useState('');
+  const [numeroCarro, setNumeroCarro] = useState('');
+  const [motorista, setMotorista] = useState('');
+  const [chapa, setChapa] = useState('');
+  const [responsabilidade, setResponsabilidade] = useState('');
+  const [testemunhas, setTestemunhas] = useState([{ nome: '', telefone: '' }]);
+  const [descricao, setDescricao] = useState('');
+  const [fotos, setFotos] = useState([]);
 
-  const [erro, setErro] = useState('')
-  const [sucesso, setSucesso] = useState('')
-  const [todasFotos, setTodasFotos] = useState([])
-  const [documentosAnexos, setDocumentosAnexos] = useState([])
-  const [enviando, setEnviando] = useState(false)
+  const empresas = [
+    { id: 'BELO_MONTE', nome: 'Belo Monte Transportes' },
+    { id: 'TOPBUS', nome: 'TopBus Transportes' }
+  ];
 
-  const API_CONFIG = {
-    URL: import.meta.env.VITE_APPS_SCRIPT_URL || process.env.REACT_APP_APPS_SCRIPT_URL,
-    API_KEY: import.meta.env.VITE_API_KEY || process.env.REACT_APP_API_KEY
-  }
+  const adicionarTestemunha = () => {
+    setTestemunhas([...testemunhas, { nome: '', telefone: '' }]);
+  };
 
-  const validarFormulario = () => {
-    if (!formData.empresa) {
-      setErro('Selecione a unidade (TOPBUS ou BELO MONTE)')
-      return false
-    }
-    if (!formData.dataHora) {
-      setErro('Preencha a data e hora do sinistro')
-      return false
-    }
-    if (!formData.local) {
-      setErro('Preencha o local do sinistro')
-      return false
-    }
-    if (!formData.onibus) {
-      setErro('Preencha a placa/identificação do ônibus')
-      return false
-    }
-    if (!formData.culpabilidade) {
-      setErro('Indique a culpabilidade do sinistro')
-      return false
-    }
-    if (todasFotos.length < 1) {
-      setErro('Adicione pelo menos uma foto do sinistro')
-      return false
-    }
-    return true
-  }
+  const removerTestemunha = (index) => {
+    setTestemunhas(testemunhas.filter((_, i) => i !== index));
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setErro('')
-    setSucesso('')
+  const atualizarTestemunha = (index, campo, valor) => {
+    const novas = [...testemunhas];
+    novas[index][campo] = valor;
+    setTestemunhas(novas);
+  };
 
-    if (!validarFormulario()) return
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setFotos([...fotos, ...files]);
+  };
 
-    setEnviando(true)
+  const removerFoto = (index) => {
+    setFotos(fotos.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    if (!unidade || !data || !local || !numeroCarro || !responsabilidade) {
+      alert('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    if (fotos.length < 4) {
+      alert('Anexe no mínimo 4 fotos da colisão.');
+      return;
+    }
 
     const payload = {
-      empresa: formData.empresa,  // 'topbus' ou 'belomonte'
-      dataHora: formData.dataHora,
-      local: formData.local,
-      onibus: formData.onibus,
-      motorista: formData.motorista,
-      chapa: formData.chapa,
-      terceiro: `${formData.terceiro.nome} | ${formData.terceiro.placa} | ${formData.terceiro.veiculo} | ${formData.terceiro.telefone}`,
-      testemunhas: formData.testemunhas.map(t => `${t.nome} - ${t.telefone}`).join(' | '),
-      culpabilidade: formData.culpabilidade,
-      descricao: formData.descricao,
-      images: [...todasFotos, ...documentosAnexos],
-      apiKey: API_CONFIG.API_KEY
-    }
+      unidade,
+      data,
+      local,
+      numeroCarro,
+      motorista,
+      chapa,
+      responsabilidade,
+      testemunhas,
+      descricao
+    };
 
     try {
-      const response = await fetch(API_CONFIG.URL, {
+      const API_URL = import.meta.env.VITE_APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbzWN0zjwL0iN_4WuDIbl7W-foaf3ckIJO_YmByQEt-PpnQpWR5HcQtT1OcBK4DS79Q5LA/exec';
+      
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      })
+      });
 
-      const data = await response.json()
-
-      if (data.success) {
-        setSucesso(`✅ Sinistro registrado! Protocolo: ${data.protocolo}`)
-        setFormData({
-          empresa: '',
-          dataHora: '',
-          local: '',
-          onibus: '',
-          motorista: '',
-          chapa: '',
-          terceiro: { nome: '', placa: '', veiculo: '', telefone: '' },
-          testemunhas: [{ nome: '', telefone: '' }],
-          culpabilidade: '',
-          descricao: ''
-        })
-        setTodasFotos([])
-        setDocumentosAnexos([])
-        setTimeout(() => window.location.href = '/', 3000)
+      const result = await response.json();
+      
+      if (result.sucesso) {
+        alert(`Sinistro registrado com sucesso! Protocolo: ${result.dados.protocolo}`);
+        limpar();
       } else {
-        setErro(data.error || 'Erro ao registrar sinistro')
+        alert(`Erro: ${result.mensagem}`);
       }
-    } catch (err) {
-      setErro('Erro de conexão: ' + err.message)
-    } finally {
-      setEnviando(false)
+    } catch (error) {
+      console.error('Erro ao enviar:', error);
+      alert('Erro ao enviar dados. Verifique sua conexão.');
     }
-  }
+  };
 
-  const adicionarTestemunha = () => {
-    setFormData(prev => ({
-      ...prev,
-      testemunhas: [...prev.testemunhas, { nome: '', telefone: '' }]
-    }))
-  }
+  const limpar = () => {
+    setUnidade('');
+    setData('');
+    setLocal('');
+    setNumeroCarro('');
+    setMotorista('');
+    setChapa('');
+    setResponsabilidade('');
+    setTestemunhas([{ nome: '', telefone: '' }]);
+    setDescricao('');
+    setFotos([]);
+  };
 
-  const removerTestemunha = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      testemunhas: prev.testemunhas.filter((_, i) => i !== index)
-    }))
-  }
+  const coresUnidade = unidade === 'TOPBUS' 
+    ? { primary: '#1e40af', secondary: '#3b82f6', light: '#dbeafe', hover: '#1e3a8a' }
+    : unidade === 'BELO_MONTE'
+    ? { primary: '#047857', secondary: '#10b981', light: '#d1fae5', hover: '#065f46' }
+    : { primary: '#1e293b', secondary: '#475569', light: '#f1f5f9', hover: '#0f172a' };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">
-          📋 Registro de Sinistro
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 py-6 sm:py-12 px-4">
+      <style>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out;
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-out;
+        }
+        
+        .btn-hover {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-hover:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-hover:active {
+          transform: translateY(0);
+        }
+        
+        .input-focus {
+          transition: all 0.2s ease;
+        }
+        
+        .input-focus:focus {
+          transform: scale(1.01);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .dropdown-item {
+          transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+          transform: translateX(4px);
+        }
+      `}</style>
 
-        {erro && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
-            <p className="font-bold">⚠️ Erro</p>
-            <p>{erro}</p>
-          </div>
-        )}
-
-        {sucesso && (
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
-            <p className="font-bold">✅ Sucesso</p>
-            <p>{sucesso}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-8 space-y-8">
-          {/* Seleção de Unidade - OBRIGATÓRIO */}
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
-            <label className="block text-gray-800 font-bold text-lg mb-4 text-center">
-              Selecione a Unidade *
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, empresa: 'topbus' }))}
-                className={`p-6 rounded-lg border-3 font-bold text-xl transition-all ${
-                  formData.empresa === 'topbus'
-                    ? 'border-blue-600 bg-blue-600 text-white shadow-lg scale-105'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400'
-                }`}
-              >
-                🚌 TOPBUS
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, empresa: 'belomonte' }))}
-                className={`p-6 rounded-lg border-3 font-bold text-xl transition-all ${
-                  formData.empresa === 'belomonte'
-                    ? 'border-green-600 bg-green-600 text-white shadow-lg scale-105'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-green-400'
-                }`}
-              >
-                🏔️ BELO MONTE
-              </button>
-            </div>
-          </div>
-
-          {/* Dados do Sinistro */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">📍 Dados do Sinistro</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Data e Hora *</label>
-                <input
-                  type="datetime-local"
-                  value={formData.dataHora}
-                  onChange={(e) => setFormData(prev => ({ ...prev, dataHora: e.target.value }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                  required
-                />
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="bg-white border border-gray-200 rounded-t-2xl shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-6 sm:px-8 py-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+                <FileText className="w-6 h-6 text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Local *</label>
-                <input
-                  type="text"
-                  value={formData.local}
-                  onChange={(e) => setFormData(prev => ({ ...prev, local: e.target.value }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                  placeholder="Endereço completo"
-                  required
-                />
+                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  Sistema de Gestão de Sinistros
+                </h1>
+                <p className="text-slate-300 text-sm mt-1">Registro e acompanhamento de ocorrências</p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Dados do Ônibus */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">🚌 Dados do Ônibus</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Placa/ID *</label>
-                <input
-                  type="text"
-                  value={formData.onibus}
-                  onChange={(e) => setFormData(prev => ({ ...prev, onibus: e.target.value }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                  placeholder="ABC-1234"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Motorista</label>
-                <input
-                  type="text"
-                  value={formData.motorista}
-                  onChange={(e) => setFormData(prev => ({ ...prev, motorista: e.target.value }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                  placeholder="Nome completo"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-semibold mb-2">Chapa</label>
-                <input
-                  type="text"
-                  value={formData.chapa}
-                  onChange={(e) => setFormData(prev => ({ ...prev, chapa: e.target.value }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                  placeholder="Número da chapa"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Culpabilidade */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">⚖️ Culpabilidade *</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, culpabilidade: 'Motorista' }))}
-                className={`p-4 rounded-lg border-2 font-bold transition-all ${
-                  formData.culpabilidade === 'Motorista'
-                    ? 'border-red-600 bg-red-600 text-white'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-red-400'
-                }`}
-              >
-                👤 Motorista TOPBUS
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, culpabilidade: 'Terceiro' }))}
-                className={`p-4 rounded-lg border-2 font-bold transition-all ${
-                  formData.culpabilidade === 'Terceiro'
-                    ? 'border-yellow-600 bg-yellow-600 text-white'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-yellow-400'
-                }`}
-              >
-                🚗 Terceiro
-              </button>
-            </div>
-          </div>
-
-          {/* Dados de Terceiro (se culpabilidade = Terceiro) */}
-          {formData.culpabilidade === 'Terceiro' && (
-            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-700 mb-4">👤 Dados do Terceiro</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  value={formData.terceiro.nome}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    terceiro: { ...prev.terceiro, nome: e.target.value }
-                  }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
-                  placeholder="Nome completo"
-                />
-                <input
-                  type="text"
-                  value={formData.terceiro.placa}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    terceiro: { ...prev.terceiro, placa: e.target.value }
-                  }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
-                  placeholder="Placa do veículo"
-                />
-                <input
-                  type="text"
-                  value={formData.terceiro.veiculo}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    terceiro: { ...prev.terceiro, veiculo: e.target.value }
-                  }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
-                  placeholder="Tipo de veículo"
-                />
-                <input
-                  type="tel"
-                  value={formData.terceiro.telefone}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    terceiro: { ...prev.terceiro, telefone: e.target.value }
-                  }))}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
-                  placeholder="Telefone"
-                />
+        {/* Formulário */}
+        <div className="bg-white border-x border-b border-gray-200 rounded-b-2xl shadow-lg">
+          <div className="px-6 sm:px-8 py-8 space-y-8">
+            
+            {/* Seleção de Empresa */}
+            <div className="animate-fadeIn">
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
+                Empresa *
+              </label>
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownAberto(!dropdownAberto)}
+                  className="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl text-left flex items-center justify-between hover:border-gray-400 transition-all duration-200 focus:outline-none focus:border-slate-600 focus:ring-4 focus:ring-slate-100"
+                >
+                  <span className={`font-medium ${unidade ? 'text-gray-900' : 'text-gray-500'}`}>
+                    {unidade ? empresas.find(e => e.id === unidade)?.nome : 'Selecione a empresa'}
+                  </span>
+                  <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${dropdownAberto ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {dropdownAberto && (
+                  <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden animate-slideDown">
+                    {empresas.map((empresa) => (
+                      <button
+                        key={empresa.id}
+                        onClick={() => {
+                          setUnidade(empresa.id);
+                          setDropdownAberto(false);
+                        }}
+                        className={`w-full px-5 py-4 text-left dropdown-item ${
+                          unidade === empresa.id 
+                            ? 'bg-slate-50 text-slate-900 font-semibold' 
+                            : 'text-gray-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        {empresa.nome}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Testemunhas */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">👥 Testemunhas</h2>
-            {formData.testemunhas.map((test, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <input
-                  type="text"
-                  value={test.nome}
-                  onChange={(e) => {
-                    const newTest = [...formData.testemunhas]
-                    newTest[index].nome = e.target.value
-                    setFormData(prev => ({ ...prev, testemunhas: newTest }))
-                  }}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
-                  placeholder="Nome"
-                />
-                <div className="flex gap-2">
-                  <input
-                    type="tel"
-                    value={test.telefone}
-                    onChange={(e) => {
-                      const newTest = [...formData.testemunhas]
-                      newTest[index].telefone = e.target.value
-                      setFormData(prev => ({ ...prev, testemunhas: newTest }))
-                    }}
-                    className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg"
-                    placeholder="Telefone"
-                  />
-                  {formData.testemunhas.length > 1 && (
+            {unidade && (
+              <div className="space-y-8 animate-fadeIn" style={{ borderLeftWidth: '4px', borderLeftColor: coresUnidade.primary, paddingLeft: '2rem' }}>
+                
+                {/* Dados do Sinistro */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    Dados do Sinistro
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Data e Hora *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={data}
+                        onChange={(e) => setData(e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl input-focus focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Local *
+                      </label>
+                      <input
+                        type="text"
+                        value={local}
+                        onChange={(e) => setLocal(e.target.value)}
+                        placeholder="Endereço completo da ocorrência"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl input-focus focus:border-transparent text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dados do Veículo */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    Dados do Veículo
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Nº do Carro *
+                      </label>
+                      <input
+                        type="text"
+                        value={numeroCarro}
+                        onChange={(e) => setNumeroCarro(e.target.value)}
+                        placeholder="Ex: 1001"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl input-focus focus:border-transparent text-sm font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Motorista
+                      </label>
+                      <input
+                        type="text"
+                        value={motorista}
+                        onChange={(e) => setMotorista(e.target.value)}
+                        placeholder="Nome completo"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl input-focus focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Chapa
+                      </label>
+                      <input
+                        type="text"
+                        value={chapa}
+                        onChange={(e) => setChapa(e.target.value)}
+                        placeholder="Nº da chapa"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl input-focus focus:border-transparent text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Responsabilidade */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    Responsabilidade *
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button
-                      type="button"
-                      onClick={() => removerTestemunha(index)}
-                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                      onClick={() => setResponsabilidade('MOTORISTA_TOPBUS')}
+                      className={`p-5 rounded-xl border-2 transition-all duration-300 font-semibold text-base btn-hover ${
+                        responsabilidade === 'MOTORISTA_TOPBUS'
+                          ? 'border-transparent shadow-lg'
+                          : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                      }`}
+                      style={responsabilidade === 'MOTORISTA_TOPBUS' ? { 
+                        backgroundColor: coresUnidade.light,
+                        borderColor: coresUnidade.primary,
+                        color: coresUnidade.primary
+                      } : {}}
                     >
-                      <Trash2 size={20} />
+                      Motorista da Empresa
                     </button>
-                  )}
+                    <button
+                      onClick={() => setResponsabilidade('TERCEIRO')}
+                      className={`p-5 rounded-xl border-2 transition-all duration-300 font-semibold text-base btn-hover ${
+                        responsabilidade === 'TERCEIRO'
+                          ? 'border-transparent shadow-lg'
+                          : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                      }`}
+                      style={responsabilidade === 'TERCEIRO' ? { 
+                        backgroundColor: coresUnidade.light,
+                        borderColor: coresUnidade.primary,
+                        color: coresUnidade.primary
+                      } : {}}
+                    >
+                      Terceiro
+                    </button>
+                  </div>
+                </div>
+
+                {/* Fotos */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    Fotos da Ocorrência *
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">Fotografe os 4 ângulos obrigatórios do veículo</p>
+                  
+                  {/* Guia Visual dos Ângulos */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <div className="bg-white border-2 border-gray-300 rounded-xl p-3 text-center hover:border-gray-400 transition-all">
+                      <div className="w-full aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg mb-2 flex items-center justify-center p-3 border border-gray-200">
+                        <svg viewBox="0 0 100 100" className="w-full h-full">
+                          <rect x="25" y="35" width="50" height="45" rx="3" fill="#334155" stroke="#1e293b" strokeWidth="2"/>
+                          <rect x="30" y="40" width="40" height="35" rx="2" fill="#64748b"/>
+                          <rect x="35" y="45" width="12" height="15" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1"/>
+                          <rect x="53" y="45" width="12" height="15" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1"/>
+                          <circle cx="38" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                          <circle cx="62" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                        </svg>
+                      </div>
+                      <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">Frente</span>
+                    </div>
+                    
+                    <div className="bg-white border-2 border-gray-300 rounded-xl p-3 text-center hover:border-gray-400 transition-all">
+                      <div className="w-full aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg mb-2 flex items-center justify-center p-3 border border-gray-200">
+                        <svg viewBox="0 0 100 100" className="w-full h-full">
+                          <rect x="25" y="35" width="50" height="45" rx="3" fill="#334155" stroke="#1e293b" strokeWidth="2"/>
+                          <rect x="30" y="40" width="40" height="35" rx="2" fill="#64748b"/>
+                          <rect x="35" y="45" width="12" height="20" rx="1" fill="#fca5a5" stroke="#dc2626" strokeWidth="1"/>
+                          <rect x="53" y="45" width="12" height="20" rx="1" fill="#fca5a5" stroke="#dc2626" strokeWidth="1"/>
+                          <circle cx="38" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                          <circle cx="62" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                        </svg>
+                      </div>
+                      <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">Traseira</span>
+                    </div>
+                    
+                    <div className="bg-white border-2 border-gray-300 rounded-xl p-3 text-center hover:border-gray-400 transition-all">
+                      <div className="w-full aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg mb-2 flex items-center justify-center p-3 border border-gray-200">
+                        <svg viewBox="0 0 100 100" className="w-full h-full">
+                          <path d="M 20 45 L 25 35 L 75 35 L 80 45 L 80 70 L 75 75 L 25 75 L 20 70 Z" fill="#334155" stroke="#1e293b" strokeWidth="2"/>
+                          <rect x="25" y="40" width="50" height="30" rx="1" fill="#64748b"/>
+                          <rect x="30" y="45" width="10" height="12" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8"/>
+                          <circle cx="30" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                          <circle cx="70" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                        </svg>
+                      </div>
+                      <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">Lateral Esq.</span>
+                    </div>
+                    
+                    <div className="bg-white border-2 border-gray-300 rounded-xl p-3 text-center hover:border-gray-400 transition-all">
+                      <div className="w-full aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg mb-2 flex items-center justify-center p-3 border border-gray-200">
+                        <svg viewBox="0 0 100 100" className="w-full h-full">
+                          <path d="M 20 45 L 25 35 L 75 35 L 80 45 L 80 70 L 75 75 L 25 75 L 20 70 Z" fill="#334155" stroke="#1e293b" strokeWidth="2"/>
+                          <rect x="25" y="40" width="50" height="30" rx="1" fill="#64748b"/>
+                          <rect x="60" y="45" width="10" height="12" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8"/>
+                          <circle cx="30" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                          <circle cx="70" cy="72" r="4" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5"/>
+                        </svg>
+                      </div>
+                      <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">Lateral Dir.</span>
+                    </div>
+                  </div>
+                  
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 bg-gradient-to-br from-gray-50 to-white">
+                    <div className="flex flex-col items-center">
+                      <label className="cursor-pointer px-8 py-4 rounded-xl font-bold text-base transition-all duration-300 btn-hover shadow-md"
+                        style={{ backgroundColor: coresUnidade.primary, color: 'white' }}
+                      >
+                        Abrir Câmera
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          capture="environment"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-3">A câmera será aberta automaticamente em dispositivos móveis</p>
+                    </div>
+
+                    {fotos.length > 0 && (
+                      <div className="mt-6 animate-fadeIn">
+                        <div className="flex items-center justify-between mb-4 px-2">
+                          <span className="text-sm font-bold text-gray-800">
+                            {fotos.length} {fotos.length === 1 ? 'foto' : 'fotos'}
+                          </span>
+                          {fotos.length < 4 ? (
+                            <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                              Faltam {4 - fotos.length}
+                            </span>
+                          ) : (
+                            <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                              ✓ Completo
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          {fotos.map((foto, index) => (
+                            <div key={index} className="relative group animate-fadeIn">
+                              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden shadow-md">
+                                <img
+                                  src={URL.createObjectURL(foto)}
+                                  alt={`Foto ${index + 1}`}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                />
+                              </div>
+                              <button
+                                onClick={() => removerFoto(index)}
+                                className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg hover:bg-red-700 btn-hover"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-md">
+                                {index + 1}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Testemunhas */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    Testemunhas
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </h3>
+                  <div className="space-y-3">
+                    {testemunhas.map((testemunha, index) => (
+                      <div key={index} className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fadeIn">
+                        <input
+                          type="text"
+                          value={testemunha.nome}
+                          onChange={(e) => atualizarTestemunha(index, 'nome', e.target.value)}
+                          placeholder="Nome da testemunha"
+                          className="px-4 py-3 border-2 border-gray-300 rounded-xl input-focus text-sm"
+                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="tel"
+                            value={testemunha.telefone}
+                            onChange={(e) => atualizarTestemunha(index, 'telefone', e.target.value)}
+                            placeholder="Telefone"
+                            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl input-focus text-sm"
+                          />
+                          {index > 0 && (
+                            <button
+                              onClick={() => removerTestemunha(index)}
+                              className="px-4 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 btn-hover"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={adicionarTestemunha}
+                    className="mt-4 text-sm font-semibold hover:underline transition-all duration-200"
+                    style={{ color: coresUnidade.primary }}
+                  >
+                    + Adicionar testemunha
+                  </button>
+                </div>
+
+                {/* Descrição */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Descrição Detalhada
+                  </label>
+                  <textarea
+                    value={descricao}
+                    onChange={(e) => setDescricao(e.target.value)}
+                    placeholder="Descreva os detalhes da ocorrência, circunstâncias e informações relevantes..."
+                    rows={6}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl input-focus resize-none text-sm"
+                  />
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <button
+                    onClick={handleSubmit}
+                    className="flex-1 py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all duration-300 btn-hover"
+                    style={{ backgroundColor: coresUnidade.primary }}
+                  >
+                    Registrar Sinistro
+                  </button>
+                  <button
+                    onClick={limpar}
+                    className="sm:w-auto px-8 py-4 bg-white text-gray-700 rounded-xl border-2 border-gray-300 hover:border-gray-400 font-semibold transition-all duration-300 btn-hover"
+                  >
+                    Limpar Formulário
+                  </button>
                 </div>
               </div>
-            ))}
-            <button
-              type="button"
-              onClick={adicionarTestemunha}
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 mb-4"
-            >
-              <Plus size={20} /> Adicionar testemunha
-            </button>
+            )}
           </div>
+        </div>
 
-          {/* Descrição */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">Descrição do Sinistro</label>
-            <textarea
-              value={formData.descricao}
-              onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="Descreva os detalhes do sinistro..."
-              rows="4"
-            />
-          </div>
-
-          {/* Fotos e Documentos */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">📸 Fotos e Documentos</h2>
-            <p className="text-gray-600 mb-4">Fotos adicionadas: {todasFotos.length} | Documentos: {documentosAnexos.length}</p>
-            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <p className="text-gray-600">Funcionalidade de upload integrada com Google Drive</p>
-              <p className="text-sm text-gray-500 mt-2">Total de anexos: {todasFotos.length + documentosAnexos.length}</p>
-            </div>
-          </div>
-
-          {/* Botão Enviar */}
-          <button
-            type="submit"
-            disabled={enviando}
-            className={`w-full py-3 rounded-lg font-bold text-white text-lg transition-all ${
-              enviando
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
-            }`}
-          >
-            {enviando ? '⏳ Enviando...' : '✅ Registrar Sinistro'}
-          </button>
-        </form>
+        {/* Footer */}
+        <div className="mt-6 text-center text-sm text-gray-500">
+          Sistema de Gestão de Sinistros © 2025
+        </div>
       </div>
     </div>
-  )
+  );
 }
