@@ -109,12 +109,14 @@ Checklist sugerido (replicado do roteiro):
 ## Fase 6 — Deploy no Netlify
 
 ### Op̧ão A — Drag & Drop
+
 ```bash
 npm run build
 # Arraste a pasta build/ para https://app.netlify.com/drop
 ```
 
 ### Op̧ão B — CLI
+
 ```bash
 npm install -g netlify-cli
 netlify login
@@ -126,6 +128,7 @@ netlify deploy --prod
 ```
 
 ### Op̧ão C — Integração Git
+
 1. Inicializar Git (`git init`, `git add .`, `git commit`).
 2. Criar repo no GitHub e conectar `origin` (`git remote add origin ...`).
 3. Configurar Netlify para usar o repo (Import from Git) e definir as env vars acima.

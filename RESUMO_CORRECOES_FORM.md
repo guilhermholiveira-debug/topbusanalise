@@ -8,20 +8,20 @@
 
 ## 1. **Dropdown de Empresa - CORRIGIDO**
 
-### ❌ Problema Anterior:
-```
+### ❌ Problema Anterior
+
 - Dropdown cortado por CSS (z-index inadequado)
 - Cliques fora não fechavam o menu
 - Altura sem limite causava overflow
-```
 
-### ✅ Solução Implementada:
+### ✅ Solução Implementada
+
 ```jsx
 // Container com z-10
 <div className="relative z-10" ref={dropdownRef}>
 
 // Menu com z-50 e altura máxima
-<div className="absolute z-50 w-full... overflow-auto" 
+<div className="absolute z-50 w-full... overflow-auto"
      style={{ maxHeight: '300px' }}>
 
 // Click-outside handler com useRef
@@ -41,18 +41,21 @@ useEffect(() => {
 
 ## 2. **API - URL APPS SCRIPT PREENCHIDA**
 
-### ❌ Antes:
+### ❌ Antes
+
 ```jsx
 const scriptUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
 ```
 
-### ✅ Agora:
+### ✅ Agora
+
 ```jsx
-const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL || 
+const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL ||
   'https://script.google.com/macros/s/AKfycbzWN0zjwL0iN_4WuDIbl7W-foaf3ckIJO_YmByQEt-PpnQpWR5HcQtT1OcBK4DS79Q5LA/exec';
 ```
 
-**Benefícios:**
+**Benefícios**
+
 - ✓ URL padrão funcional
 - ✓ Fallback para variável de ambiente
 - ✓ Pronto para deploy
@@ -61,7 +64,8 @@ const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL ||
 
 ## 3. **Sistema de Login e Dashboard IMPLEMENTADO**
 
-### ✅ Tela de Login:
+### ✅ Tela de Login
+
 ```jsx
 if (telaAtiva === 'login') {
   return (
@@ -72,7 +76,8 @@ if (telaAtiva === 'login') {
 }
 ```
 
-### ✅ Dashboard de Consulta:
+### ✅ Dashboard de Consulta
+
 ```jsx
 if (telaAtiva === 'dashboard') {
   return (
@@ -83,7 +88,8 @@ if (telaAtiva === 'dashboard') {
 }
 ```
 
-**Fluxo:**
+**Fluxo**
+
 1. Usuário clica ícone do gestor (canto superior)
 2. Tela de login aparece
 3. Após autenticação, carrega lista de sinistros
@@ -93,18 +99,20 @@ if (telaAtiva === 'dashboard') {
 
 ## 4. **Gerenciamento de Fotos - MELHORADO**
 
-### ✅ Preview com validação:
+### ✅ Preview com validação
+
 ```jsx
 const handleFileChange = async (e) => {
   const files = Array.from(e.target.files);
   setFotos([...fotos, ...files]);
-  
+
   const newPreviews = files.map(file => URL.createObjectURL(file));
   setFotosPreview([...fotosPreview, ...newPreviews]);
 };
 ```
 
-### ✅ Conversão para Base64:
+### ✅ Conversão para Base64
+
 ```jsx
 const converterParaBase64 = (file) => {
   return new Promise((resolve, reject) => {
@@ -116,7 +124,8 @@ const converterParaBase64 = (file) => {
 };
 ```
 
-**Benefícios:**
+**Benefícios**
+
 - ✓ Fotos enviadas em Base64 (compatível com Sheets)
 - ✓ Limpeza automática de URLs (useEffect)
 - ✓ Indicador de conclusão (4 fotos)
@@ -125,7 +134,8 @@ const converterParaBase64 = (file) => {
 
 ## 5. **Envio de Dados - CORRIGIDO**
 
-### ✅ Payload estruturado:
+### ✅ Payload estruturado
+
 ```jsx
 const payload = {
   unidade,
@@ -143,7 +153,8 @@ const payload = {
 };
 ```
 
-### ✅ Requisição:
+### ✅ Requisição
+
 ```jsx
 await fetch(APPS_SCRIPT_URL, {
   method: 'POST',
@@ -159,7 +170,8 @@ await fetch(APPS_SCRIPT_URL, {
 
 ## 6. **Estados e Validações - IMPLEMENTADOS**
 
-### ✅ Estados adicionados:
+### ✅ Estados adicionados
+
 ```jsx
 const [fotosPreview, setFotosPreview] = useState([]);
 const [guiaAberto, setGuiaAberto] = useState(false);
@@ -170,7 +182,8 @@ const [autenticado, setAutenticado] = useState(false);
 const [sinistros, setSinistros] = useState([]);
 ```
 
-### ✅ Validações:
+### ✅ Validações
+
 ```jsx
 if (!unidade || !data || !local || !numeroCarro || !responsabilidade) {
   setErro('Preencha todos os campos obrigatórios');
@@ -187,12 +200,13 @@ if (fotos.length < 4) {
 
 ## 7. **Credenciais - SINCRONIZADAS**
 
-### ✅ Login usando variáveis de ambiente:
+### ✅ Login usando variáveis de ambiente
+
 ```jsx
 const handleLogin = () => {
   const loginCorreto = import.meta.env.VITE_DASHBOARD_LOGIN || 'sinistro';
   const senhaCorreta = import.meta.env.VITE_DASHBOARD_PASSWORD || '139702';
-  
+
   if (loginInput === loginCorreto && senhaInput === senhaCorreta) {
     setAutenticado(true);
     setTelaAtiva('dashboard');
@@ -203,7 +217,7 @@ const handleLogin = () => {
 
 ---
 
-## 📋 ENDERÇOS E IDs PREENCHIDOS
+## 📋 ENDEREÇOS E IDs PREENCHIDOS
 
 | Campo | Valor |
 |-------|-------|
@@ -217,17 +231,17 @@ const handleLogin = () => {
 
 ## 🚀 PRÓXIMOS PASSOS
 
-1. **Testar em Vercel:**
+1. **Testar em Vercel**
    - Verificar se variáveis de ambiente estão corretas
    - Fazer novo deployment
    - Limpar cache do navegador
 
-2. **Validar No Apps Script:**
+2. **Validar No Apps Script**
    - Logs do script devem mostrar recebimento dos dados
    - Fotos devem estar no Drive
    - Sheets deve atualizar automaticamente
 
-3. **Testar Fluxo Completo:**
+3. **Testar Fluxo Completo**
    - Formulário → Envio → Apps Script → Sheets/Drive
    - Dashboard → Login → Consulta de registros
 

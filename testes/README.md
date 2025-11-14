@@ -109,6 +109,7 @@ curl -X POST "https://script.google.com/macros/s/AKfycbynbT_LfA0QClk7u7So3mfL9zj
 ## 📊 Dados dos Testes
 
 ### Teste #1 - TOPBUS Colisão Lateral
+
 ```
 Empresa: TOPBUS
 Ônibus: TB-2450
@@ -119,6 +120,7 @@ Descrição: Colisão lateral com carro em semáforo vermelho
 ```
 
 ### Teste #2 - TOPBUS Danos em Estacionamento
+
 ```
 Empresa: TOPBUS
 Ônibus: TB-3310
@@ -129,6 +131,7 @@ Descrição: Manobra de marcha ré. Motorista não observou carro estacionado
 ```
 
 ### Teste #3 - BELO MONTE Colisão Frontal
+
 ```
 Empresa: BELO MONTE
 Ônibus: BM-1520
@@ -139,6 +142,7 @@ Descrição: Terceiro invadiu faixa. Colisão frontal parcial
 ```
 
 ### Teste #4 - BELO MONTE Ferimento em Passageiro
+
 ```
 Empresa: BELO MONTE
 Ônibus: BM-2105
@@ -149,6 +153,7 @@ Descrição: Freada brusca. Passageira caiu no corredor
 ```
 
 ### Teste #5 - Validação (deve rejeitar)
+
 ```
 Empresa: [VAZIO] ⚠️
 Esperado: Rejeição pela validação
@@ -159,16 +164,19 @@ Esperado: Rejeição pela validação
 Após executar os testes, verifique:
 
 ### 1. Google Sheets
+
 - [ ] Aba "TOPBUS" tem 2 novos registros (Testes #1 e #2)
 - [ ] Aba "BELO_MONTE" tem 2 novos registros (Testes #3 e #4)
 - [ ] Colunas preenchidas corretamente
 
 ### 2. Google Drive
+
 - [ ] Pasta "TOPBUS/SIN-TB-XXXX/" criada
 - [ ] Pasta "BELO_MONTE/SIN-BM-XXXX/" criada
 - [ ] Subpastas por categoria de sinistro
 
 ### 3. Console/Terminal
+
 - [ ] Resposta com status "success": true
 - [ ] Protocolo gerado (SIN-TB-XXXX ou SIN-BM-XXXX)
 - [ ] Nenhum erro 500
@@ -176,6 +184,7 @@ Após executar os testes, verifique:
 ## 🔍 Troubleshooting
 
 ### Erro: curl não encontrado (Bash)
+
 ```bash
 # Ubuntu/Debian
 sudo apt-get install curl
@@ -185,6 +194,7 @@ brew install curl
 ```
 
 ### Erro: jq não encontrado (Bash - opcional)
+
 ```bash
 # Ubuntu/Debian
 sudo apt-get install jq
@@ -194,16 +204,19 @@ brew install jq
 ```
 
 ### Erro: Execução negada (PowerShell)
+
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 ### Erro: API não responde
+
 - Verifique conexão de internet
 - Confirme que URL do Apps Script está correta
 - Verifique se Apps Script está reimplantado
 
 ### Erro: CORS ou 403
+
 - Reimplante o Apps Script
 - Atualize a URL em `teste-*.sh` ou `teste-*.ps1`
 

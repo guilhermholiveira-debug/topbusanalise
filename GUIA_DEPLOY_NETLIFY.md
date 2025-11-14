@@ -1,6 +1,7 @@
 # 🚀 Guia de Deploy no Netlify
 
 ## Pré-requisitos
+
 - GitHub com repositório criado
 - Conta no Netlify (netlify.com)
 - Node.js 18+
@@ -55,13 +56,16 @@ Após adicionar as variáveis, clique em **Trigger deploy** para reconstruir com
 ## 🐛 Troubleshooting
 
 ### Erro 404 ao recarregar página
+
 - Configuração de redirects no `netlify.toml` já está pronta ✅
 
 ### API não conecta
+
 - Verifique variáveis de ambiente no painel do Netlify
 - Confirme que URLs estão corretas no Apps Script
 
 ### Imagens não carregam
+
 - Permissões da pasta Drive
 - URL do Apps Script correta
 

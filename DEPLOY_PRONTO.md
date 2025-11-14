@@ -35,6 +35,7 @@ topbusanalise/
 ## ✅ Funcionalidades Implementadas
 
 ### FormularioSinistro.jsx
+
 - ✅ Seleção visual de unidade (TOPBUS azul / BELO MONTE verde)
 - ✅ Campo `empresa` obrigatório no estado
 - ✅ Validação incluindo seleção de empresa
@@ -43,6 +44,7 @@ topbusanalise/
 - ✅ Suporte a múltiplos campos dinâmicos
 
 ### ListaSinistros.jsx
+
 - ✅ Filtro de unidade (dropdown)
 - ✅ Badge de empresa com cores diferentes
 - ✅ Fetch com parâmetro `empresa`
@@ -51,6 +53,7 @@ topbusanalise/
 - ✅ Links para planilha Google Sheets
 
 ### Ambiente
+
 - ✅ `.env.local` com credenciais configuradas
 - ✅ `.env.example` para Git (sem credenciais)
 - ✅ `.gitignore` protegendo `.env.local`

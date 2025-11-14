@@ -3,15 +3,18 @@
 ## Credenciais Configuradas
 
 ### Apps Script
+
 - **URL**: https://script.google.com/macros/s/AKfycbynbT_LfA0QClk7u7So3mfL9zjU9Q4Q-SDlPSbEASTCi3bbbUWd78EgbjiUfDVN5qP0Kg/exec
 - **API Key**: a03f60d688b3b52900e5cd8faa74a4d5c4a551e27d02828e4f11e0d5d4584812
 
 ### Planilha Google Sheets
+
 - **ID**: 1ZtatcnU7jwHXrso5mSIMRFQIFFUhsihUyGvRK36klSo
 - **Aba TOPBUS**: gid=0
 - **Aba BELO_MONTE**: gid=760103440
 
 ### Google Drive
+
 - **Pasta Imagens**: 1AQFiXi9-xDulKgO-qZCF3tRrBIsrWcf4
 
 ## Arquivo .env.local

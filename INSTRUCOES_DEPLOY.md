@@ -125,17 +125,20 @@ REACT_APP_API_KEY=a03f60d688b3b52900e5cd8faa74a4d5c4a551e27d02828e4f11e0d5d45848
 ## 🧪 APÓS O DEPLOY - TESTE COMPLETO
 
 ### 1. Acesse seu site
+
 ```
 https://[seu-site-id].netlify.app
 ```
 
 ### 2. Teste o formulário
+
 - Selecione unidade (TOPBUS ou BELO_MONTE)
 - Preencha todos os campos
 - Clique em "Registrar Sinistro"
 - Confirme mensagem de sucesso com protocolo
 
 ### 3. Verifique Google Sheets
+
 ```
 https://docs.google.com/spreadsheets/d/1ZtatcnU7jwHXrso5mSIMRFQIFFUhsihUyGvRK36klSo
 ```
@@ -143,6 +146,7 @@ https://docs.google.com/spreadsheets/d/1ZtatcnU7jwHXrso5mSIMRFQIFFUhsihUyGvRK36k
 - Confirme nova linha com os dados
 
 ### 4. Verifique Google Drive
+
 ```
 https://drive.google.com/drive/folders/1AQFiXi9-xDulKgO-qZCF3tRrBIsrWcf4
 ```
@@ -151,6 +155,7 @@ https://drive.google.com/drive/folders/1AQFiXi9-xDulKgO-qZCF3tRrBIsrWcf4
 - Abra `metadata.json`
 
 ### 5. Teste a listagem
+
 - Clique no botão "Ver Listagem"
 - Verifique se os sinistros aparecem
 - Teste filtros por unidade
@@ -161,6 +166,7 @@ https://drive.google.com/drive/folders/1AQFiXi9-xDulKgO-qZCF3tRrBIsrWcf4
 ## 📊 CHECKLIST FINAL
 
 ### Build & Deploy
+
 - [x] Dependências instaladas
 - [x] Build gerado localmente
 - [x] Netlify CLI instalado
@@ -168,6 +174,7 @@ https://drive.google.com/drive/folders/1AQFiXi9-xDulKgO-qZCF3tRrBIsrWcf4
 - [ ] Variáveis de ambiente configuradas
 
 ### Testes Pós-Deploy
+
 - [ ] Site acessível
 - [ ] Formulário funcionando
 - [ ] Dados salvos no Sheets
@@ -180,27 +187,32 @@ https://drive.google.com/drive/folders/1AQFiXi9-xDulKgO-qZCF3tRrBIsrWcf4
 ## 🎯 COMANDOS ÚTEIS
 
 ### Rebuild local
+
 ```bash
 npm run build
 ```
 
 ### Preview local antes do deploy
+
 ```bash
 npm run dev
 # Acesse: http://localhost:5173
 ```
 
 ### Deploy CLI (após login)
+
 ```bash
 netlify deploy --prod
 ```
 
 ### Ver status do site
+
 ```bash
 netlify status
 ```
 
 ### Abrir dashboard do Netlify
+
 ```bash
 netlify open
 ```

@@ -44,6 +44,7 @@ topbus-sinistros/
 ## ⚙️ Funcionalidades
 
 ### Registro de Sinistros
+
 - ✅ **Seleção de Unidade**: TOPBUS ou BELO MONTE
 - ✅ Dados do acidente (data, local, veículo, motorista, chapa)
 - ✅ Identificação de culpabilidade (Motorista/Terceiro)
@@ -55,6 +56,7 @@ topbus-sinistros/
 - ✅ Suporte UTF-8 (português brasileiro)
 
 ### Listagem
+
 - ✅ Filtro por unidade (Todas/TOPBUS/BELO MONTE)
 - ✅ Busca por protocolo, local, motorista
 - ✅ Filtro por período (hoje, semana, mês)
@@ -64,6 +66,7 @@ topbus-sinistros/
 ## 🚀 Setup Local
 
 ### 1. Pré-requisitos
+
 - Node.js 18+
 - npm 9+
 
@@ -160,15 +163,19 @@ Cada unidade possui:
 ## 🐛 Troubleshooting
 
 ### Erro "Invalid API key"
+
 Verifique `.env.local` e variáveis do Netlify
 
 ### Imagens não salvam
+
 Confirme permissões da pasta Drive
 
 ### Dados não aparecem
+
 Verifique se aba existe na planilha
 
 ### CORS blocked
+
 Reimplante Apps Script e atualize URL
 
 ## 📞 Suporte
